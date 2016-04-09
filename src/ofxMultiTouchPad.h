@@ -37,9 +37,9 @@
 
 
 /* IMPORTANT!
-   You must include the MultitouchSupport.framework from:
-   /System/Library/PrivateFrameworks/MultitouchSupport.framework
-   in order to compile.
+ You must include the MultitouchSupport.framework from:
+ /System/Library/PrivateFrameworks/MultitouchSupport.framework
+ in order to compile.
  */
 
 #pragma once
@@ -54,12 +54,12 @@
  */
 
 #ifndef __APPLE_CC__
-    #error -- THIS ONLY WORKS ON OSX & THE LATEST MACBOOKS WITH MULTITOUCHPAD!
+#error -- THIS ONLY WORKS ON OSX & THE LATEST MACBOOKS WITH MULTITOUCHPAD!
 #else
-    #if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5)
-        #error -- This needs OS X 10.5 (Leopard) or higher!\n\t\tCheck SDK ... \
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5)
+#error -- This needs OS X 10.5 (Leopard) or higher!\n\t\tCheck SDK ... \
 and add the MultitouchSupport.framework from the PrivateFrameworks folder
-    #endif
+#endif
 #endif
 
 
@@ -70,11 +70,12 @@ and add the MultitouchSupport.framework from the PrivateFrameworks folder
 #include "MTTypes.h"
 
 #define _NUM_TOUCH_FINGERS 16 // who has more then 16 fingers?
+#define _MAX_DEVICES 4 //who has more than 4 devices?
 
 static Finger _touches[_NUM_TOUCH_FINGERS];
 static int fingerCount;
 
-static MTDeviceRef _mt_device;
+static MTDeviceRef _mt_device[_MAX_DEVICES];
 static int _mt_callback(int device, Finger *data, int nFingers,
                         double timestamp, int frame);
 
@@ -91,10 +92,10 @@ typedef struct MTouch {
  TODO: optimize the container to store timestamps, when a touch is added
  */
 typedef struct TouchFrame {
-  Finger touches[_NUM_TOUCH_FINGERS];
-  int device,count,frame;
-  double timestamp;
-  TouchFrame(): count(0){};
+    Finger touches[_NUM_TOUCH_FINGERS];
+    int device,count,frame;
+    double timestamp;
+    TouchFrame(): count(0){};
 } TouchFrame;
 
 static TouchFrame touchEvent;
@@ -103,31 +104,32 @@ static ofEvent<TouchFrame> MTUpdateBlock;
 class ofxMultiTouchPad {
     
 public:
-  ofEvent<int> update; // occurs each callback call and sends the touchCount
-  ofEvent<int> touchAdded; // if the number of touches increased
-  ofEvent<int> touchRemoved;  // less touches as before
+    ofEvent<int> update; // occurs each callback call and sends the touchCount
+    ofEvent<int> touchAdded; // if the number of touches increased
+    ofEvent<int> touchRemoved;  // less touches as before
     
-  static const int maxTouches;
-  ofxMultiTouchPad();  // initialize and create a link to the device
-  ~ofxMultiTouchPad(); // unlink the device
-
-  bool getTouchAt(int pos, MTouch * touch);
-  MTouch getTouchAt(int pos);
-  bool getTouchAsOfPointAt(int pos, ofPoint * p);
-  int  getTouchCount();
-  void getTouchesAsOfPoints(std::vector<ofPoint> * pointv);
-  std::vector<MTouch> getTouches();
-  
+    static const int maxTouches;
+    ofxMultiTouchPad();  // initialize and create a link to the device
+    ~ofxMultiTouchPad(); // unlink the device
+    
+    bool getTouchAt(int pos, MTouch * touch);
+    MTouch getTouchAt(int pos);
+    bool getTouchAsOfPointAt(int pos, ofPoint * p);
+    int  getTouchCount();
+    void getTouchesAsOfPoints(std::vector<ofPoint> * pointv);
+    std::vector<MTouch> getTouches();
+    
 protected:
-  TouchFrame _touchData;
-  static int _guard;
-  void callBackTriggered(TouchFrame & _t); // callback callback
+    int numDevices;
+    TouchFrame _touchData;
+    static int _guard;
+    void callBackTriggered(TouchFrame & _t); // callback callback
     
-  /*
-   deprecated ?
-   */
-  Finger (*fingers)[_NUM_TOUCH_FINGERS];
-  int * _fingerCount;
+    /*
+     deprecated ?
+     */
+    Finger (*fingers)[_NUM_TOUCH_FINGERS];
+    int * _fingerCount;
 };
 
 
